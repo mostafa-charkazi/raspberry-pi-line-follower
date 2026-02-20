@@ -116,7 +116,7 @@ python3 app.py
 
 Server runs on:
 
-http://`<raspberry-pi-ip>`{=html}:4580
+http://`<raspberry-pi-ip>`:4580
 
 ------------------------------------------------------------------------
 
