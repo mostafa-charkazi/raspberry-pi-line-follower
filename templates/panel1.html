@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IoT Car Control Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <div class="container-xxl py-3">
+    <div class="app-header mb-3">
+      <div class="d-flex align-items-center gap-2">
+        <strong>IoT Car Control Panel</strong>
+        <span class="badge text-bg-info">v1.1</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="chip" id="clock" aria-live="polite">--:--:-- | --/--/----</div>
+        <div class="theme-switch-wrapper">
+          <label class="theme-switch">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <aside class="col-lg-2 d-none d-lg-block">
+        <div class="sidebar">
+          <button class="btn active" data-mode="manual">🎮 Manual</button>
+          <button class="btn" data-mode="image">🖼 Image</button>
+          <button class="btn" data-mode="sensor">🧭 Sensor</button>
+          <button class="btn" data-mode="sensor-camera">🍕 Sensor-Camera</button>
+        </div>
+      </aside>
+
+      <main class="col-12 col-lg-10">
+        <!-- Phone segmented tabs -->
+        <div class="d-lg-none mb-2">
+          <div class="card panel-card p-2">
+            <div class="segmented" role="tablist" aria-label="Modes">
+              <button class="btn active" data-mode="manual" role="tab">Manual</button>
+              <button class="btn" data-mode="image" role="tab">Image</button>
+              <button class="btn" data-mode="sensor" role="tab">Sensor</button>
+              <!-- اینجا هم باید sensor-camera باشد -->
+              <button class="btn" data-mode="sensor-camera" role="tab">Sensor-Camera</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Camera -->
+          <section class="col-12 col-xl-8">
+            <div class="card panel-card">
+              <div class="card-header">Camera — Live Stream</div>
+              <div class="card-body pt-2">
+                <div class="camera-box" role="img" aria-label="Live camera stream placeholder">
+                  <div class="camera-toolbar">
+                    <div class="pill">📷 Camera</div>
+                    <div class="pill"><span class="rec-dot"></span> <span>REC • 1080p/30</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PTZ -->
+          <section class="col-12 col-xl-4">
+            <div class="card panel-card h-100">
+              <div class="card-header">Camera PTZ</div>
+              <div class="card-body d-flex flex-column align-items-center justify-content-center gap-3">
+                <div class="d-grid ptz-grid" style="grid-template-columns:44px 44px 44px; gap:10px;">
+                  <span></span>
+                  <button class="btn btn-outline-secondary p-2" id="ptzUp" aria-label="PTZ Up">▲</button>
+                  <span></span>
+                  <button class="btn btn-outline-secondary p-2" id="ptzLeft" aria-label="PTZ Left">◀</button>
+                  <button class="btn btn-outline-secondary p-2" id="ptzCenter" aria-label="PTZ Center">•</button>
+                  <button class="btn btn-outline-secondary p-2" id="ptzRight" aria-label="PTZ Right">▶</button>
+                  <span></span>
+                  <button class="btn btn-outline-secondary p-2" id="ptzDown" aria-label="PTZ Down">▼</button>
+                  <span></span>
+                </div>
+                <div class="d-flex gap-2 text-center">
+                  <button class="btn btn-outline-primary px-3" id="zoomIn" aria-label="Zoom In">＋</button>
+                  <button class="btn btn-outline-primary px-3" id="zoomOut" aria-label="Zoom Out">－</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Movement -->
+          <section class="col-12 col-xl-8">
+            <div class="card panel-card">
+              <div class="card-header">Movement</div>
+              <div class="card-body">
+
+                <!-- کانتینر چیدمان دسکتاپ -->
+                <div class="movement-controls">
+
+                  <!-- سمت چپ: درصد سرعت -->
+                  <div class="speed-section">
+                    <div class="speed-ring" id="speedRing" data-speed="0"></div>
+                  </div>
+
+                  <!-- سمت راست: جوی‌استیک -->
+                  <div class="joy-section">
+                    <div class="joy-wrap">
+                      <div class="joy-base joy-cross" id="joyBase" aria-label="Virtual Joystick">
+                        <div class="joy-thumb" id="joyThumb" role="slider" aria-valuemin="-1" aria-valuemax="1"
+                          aria-valuenow="0"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- پایین وسط: دکمه استاپ -->
+                <div class="text-center mt-3">
+                  <button class="btn btn-stop px-4" id="btnStop"><span class="me-2">⛔</span>STOP</button>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- Status -->
+          <section class="col-12 col-xl-4">
+            <div class="card panel-card h-100">
+              <div class="card-header">Status</div>
+              <div class="card-body d-flex flex-column justify-content-center">
+                <div class="d-flex align-items-center gap-3 justify-content-center mb-3 flex-wrap">
+                  <svg class="gauge" viewBox="0 0 100 100" role="img" aria-label="Battery level">
+                    <circle class="track" cx="50" cy="50" r="42"></circle>
+                    <circle class="value" cx="50" cy="50" r="42" stroke-dasharray="0 264" id="batteryArc"></circle>
+                  </svg>
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="chip d-flex align-items-center gap-2"><span>🔋</span><span id="batteryText">100%</span>
+                    </div>
+                    <div class="chip mt-2">Link: <span id="linkText">WiFi</span></div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                  <div class="chip d-flex align-items-center gap-2"><span class="badge rounded-circle"
+                      style="background:var(--ok);">&nbsp;</span>IR Left</div>
+                  <div class="chip d-flex align-items-center gap-2"><span class="badge rounded-circle"
+                      style="background:var(--ok);">&nbsp;</span>IR Center</div>
+                  <div class="chip d-flex align-items-center gap-2"><span class="badge rounded-circle"
+                      style="background:var(--ok);">&nbsp;</span>IR Right</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Logs -->
+          <section class="col-12">
+            <div class="card panel-card">
+              <div class="card-header">Logs</div>
+              <div class="card-body">
+                <pre class="m-0 mono" id="logBox" style="max-height:200px; overflow:auto;">[start] ready.</pre>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="{{ url_for('static', filename='status-updater.js') }}"></script>
+</body>
+
+</html>
